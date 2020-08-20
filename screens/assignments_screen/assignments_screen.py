@@ -3,6 +3,7 @@ from screens.assignments_screen.workspace_assitance import *
 from screens.assignments_screen.worksapce_exams import *
 from widgets.class_button import Class_Button
 from styles import *
+from PIL import ImageTk, Image
 
 class Assignments_Screen(tk.Frame):
     def __init__(self, container):
@@ -27,6 +28,7 @@ class Assignments_Screen(tk.Frame):
             frame = workspace(self.container, margin = margin, controller = self)
             self.workspaces[name] = frame
             frame.place(x=0,y=0, height = 500)
+        self.show_workspace("Workspace_Assistance")
 
         for b in range(7):
             b = Class_Button(master = self.clases, level = "PR1", schedule="L X V 16:00 - 17:00")

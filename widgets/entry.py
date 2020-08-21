@@ -36,4 +36,7 @@ class Entry(tk.Entry):
             self["show"] = ""
             super().insert("0", self.placeholder)
             self._on_placeholder = True
+    def clear(self):
+        self.delete("0","end")
+        self._add_placeholder(event = "")
     #todo implement placeholder with "command" instead of "FocusIn" or "FocusOut"

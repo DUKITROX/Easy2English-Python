@@ -20,6 +20,7 @@ class Easy2English(tk.Tk):
             self.screens[screen_name] = frame
             frame.place(x=0, y=0, width = 1000, height = 500)
         self.show_screen("Authentication_Screen")
+
     def show_screen(self, screen):
         frame = self.screens[screen]
         frame.tkraise()

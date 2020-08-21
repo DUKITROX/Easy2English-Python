@@ -42,7 +42,6 @@ class Workspace_Exams(tk.Frame):
             h = Student_RadioButton(students, student_name = "asdasdas asdasd asd", variable=students_var, id=h)
             h.colocar()
 
-        #todo implement "Radiobuttons" instead of "CheckBoxes"
         #EXAMS FRAME
 
         exams_frame = tk.LabelFrame(self,
@@ -80,7 +79,7 @@ class Workspace_Exams(tk.Frame):
         speaking_entry = Entry(exam_marks, placeholder="Listening", on_password=False)
         speaking_entry.place(x=self.entry_width+button_width*2, y=self.entry_height+button_width*2, width = self.entry_width, height = self.entry_height)
 
-        #todo add binding to "exam_option" but later on when i am implementing firebase logic
+        #todo add binding to "exam_option" with tkinter variables but later on when i am implementing firebase logic
 
         # BUTTONS at the bottom of the screen
 

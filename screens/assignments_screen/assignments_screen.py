@@ -6,7 +6,7 @@ from styles import *
 from PIL import ImageTk, Image
 
 class Assignments_Screen(tk.Frame):
-    def __init__(self, container):
+    def __init__(self, container, classes = None):
         super().__init__(container, bg = dark_color, width = 1000, height = 500)
 
         self.clases = tk.LabelFrame(self,

@@ -34,16 +34,21 @@ class Authentication_Screen(tk.Frame):
                                     activebackground = light_color,
                                     borderwidth = 1,
                                     relief = "ridge",
-                                    command = lambda : self._log_in(id = self.id.get(), password = self.password.get())
+                                    command = lambda : self._log_in(id = self.id.get().strip(), password = self.password.get().strip())
                                     )
         login_button.place(relx = 0.5, rely = 0.65, anchor = "center", width = 300)
 
     def _log_in(self, id, password):
-        result = database.log_in(id, password)
-        if result == True:
-            self.master.show_screen("Assignments_Screen")
-            self.password.clear()
-            self.id.clear()
-            self.focus_set()
+        if id == "":
+            t = Authentication_Toasts(self, error="ID does not exist")
         else:
-            t = Authentication_Toasts(self, error=result).colocar()
+            result = database.log_in(id, password)
+            if result == True:
+                database.fetch_clases()
+                self.password.clear()
+                self.id.clear()
+                self.focus_set()
+                self.master.screens["Assignments_Screen"].place_classes()
+                self.master.show_screen("Assignments_Screen")
+            else:
+                t = Authentication_Toasts(self, error=result).colocar()

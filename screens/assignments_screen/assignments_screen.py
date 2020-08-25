@@ -1,17 +1,17 @@
 import tkinter as tk
 from screens.assignments_screen.workspace_assitance import *
 from screens.assignments_screen.worksapce_exams import *
+from services.database_methods import database
 from widgets.class_button import Class_Button
 from styles import *
-from PIL import ImageTk, Image
 
 class Assignments_Screen(tk.Frame):
-    def __init__(self, container, classes = None):
-        super().__init__(container, bg = dark_color, width = 1000, height = 500)
+    def __init__(self, master):
+        super().__init__(master, bg = dark_color, width = 1000, height = 500)
 
         self.clases = tk.LabelFrame(self,
                                     width = 300,
-                                    height = 500-margin*2,
+                                    height = 500-margin,
                                     bg = dark_color,
                                     text = "Classes",
                                     borderwidth = frame_width,
@@ -27,13 +27,34 @@ class Assignments_Screen(tk.Frame):
             name = workspace.__name__
             frame = workspace(self.container, margin = margin, controller = self)
             self.workspaces[name] = frame
-            frame.place(x=0,y=0, height = 500)
+            frame.place(x=0,y=0, height = 500, width=1000-(300+margin*2))
         self.show_workspace("Workspace_Assistance")
-
-        for b in range(7):
-            b = Class_Button(master = self.clases, level = "PR1", schedule="L X V 16:00 - 17:00")
-            b.colocar()
 
     def show_workspace(self, workspace):
         frame = self.workspaces[workspace]
         frame.tkraise()
+
+    def place_classes(self):
+        for b in database.get_classes():
+            id = b["id"]
+            b = Class_Button(self.clases,
+                             level = b["level"],
+                             schedule = b["schedule"],
+                             id = id,
+                             controller = self,
+                             )
+            b.colocar()
+
+
+    def get_students_info(self, id, level, schedule):
+        database.fetch_students_info(id = id)
+        class_info_dict = {
+            "id":str(id),
+            "level":str(level),
+            "schedule":str(schedule)
+        }
+        self.workspaces["Workspace_Assistance"].class_info_dict = class_info_dict
+        self.workspaces["Workspace_Assistance"].clear_homework()
+        self.focus_set()
+        self.workspaces["Workspace_Assistance"].place_students()
+        self.workspaces["Workspace_Exams"].place_students()

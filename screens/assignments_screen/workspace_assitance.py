@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+import datetime
 from widgets.student_checkbox import *
 from widgets.homework_entry import *
+from services.database_methods import database
 from styles import *
 
 class Workspace_Assistance(tk.Frame):
@@ -9,8 +11,12 @@ class Workspace_Assistance(tk.Frame):
         super().__init__(master, bg = dark_color)
 
         self.master = master
+        self.class_info_dict = None
+        self.rendered_canvas = False
+        self.students_list = []
+
     #FRAMES
-        assistance_frame = tk.LabelFrame(self,
+        self.assistance_frame = tk.LabelFrame(self,
                           text = "Assitance",
                           font = label_frame_font(self),
                           fg =white_color,
@@ -19,26 +25,7 @@ class Workspace_Assistance(tk.Frame):
                           height = 300,
                           width = 1000-(300+margin*3)
                           )
-        assistance_frame.pack(fill = "both")
-
-        canvas = tk.Canvas(assistance_frame, background = dark_color, highlightthickness = 0)
-        canvas.pack(fill = "both", expand = True, side = "left")
-
-        scrollbar = tk.Scrollbar(assistance_frame, orient = "vertical",command = canvas.yview)
-        scrollbar.pack(fill = "y", side = "right")
-
-        canvas.configure(yscrollcommand = scrollbar.set)
-        canvas.bind("<Configure>", lambda event: canvas.configure(scrollregion = canvas.bbox("all")))
-
-        students = tk.Frame(canvas, background = dark_color)
-        canvas.create_window((0,0), anchor = "nw", window = students)
-
-        self.students_list = []
-
-        for h in range (12):
-            h = Student_Checkbox(students, "asdasondmasoi valasdadwwa")
-            h.colocar()
-            self.students_list.append(h)
+        self.assistance_frame.pack(fill = "both", padx = margin)
 
         homework_frame = tk.LabelFrame(self,
                           text="Homework",
@@ -46,17 +33,18 @@ class Workspace_Assistance(tk.Frame):
                           fg=white_color,
                           bg=dark_color,
                           borderwidth=frame_width,
-                          height=177-margin*2,
-                          width=1000 - (300 + margin * 3)
                           )
-        homework_frame.pack(fill = "x")
+        homework_frame.place(width = 1000 - (300 + margin * 3), x = 0, y = 300, height=179-margin*3)
 
-        entry = Homework_Entry(homework_frame)
-        entry.colocar()
+        self.entry = Homework_Entry(homework_frame)
+        self.entry.colocar()
+
+        buttons_frame = tk.Frame(self, height = 120, bg = dark_color)
+        buttons_frame.place(width=1000 - (300 + margin * 3), y = 479 - margin * 2)
 
     #BUTTONS at the bottom of the screen
 
-        assistance_button = tk.Button(self,
+        assistance_button = tk.Button(buttons_frame,
                                     text="Update assistance",
                                     font=lower_button_font(self),
                                     fg=white_color,
@@ -66,9 +54,9 @@ class Workspace_Assistance(tk.Frame):
                                     borderwidth=button_width,
                                     command = lambda : self._assistance_button()
                                     )
-        assistance_button.pack(fill="x", expand=True, side="left", pady=margin, padx=3)
+        assistance_button.pack(fill = "x", expand = True, side="left", padx=3)
 
-        homework_button = tk.Button(self,
+        homework_button = tk.Button(buttons_frame,
                                     text = "Send homework",
                                     font = lower_button_font(self),
                                     fg = white_color,
@@ -77,9 +65,9 @@ class Workspace_Assistance(tk.Frame):
                                     activebackground = light_color,
                                     borderwidth = button_width,
                                     command = lambda : self._homework_button())
-        homework_button.pack(fill="x", expand = True, side="left", pady = margin, padx = 3)
+        homework_button.pack(fill = "x", expand = True, side="left", padx=3)
 
-        exams_button = tk.Button(self,
+        exams_button = tk.Button(buttons_frame,
                       text = "Go to exams",
                       font = lower_button_font(self),
                       fg = white_color,
@@ -89,15 +77,82 @@ class Workspace_Assistance(tk.Frame):
                       borderwidth = button_width,
                       command = lambda : controller.show_workspace("Workspace_Exams")
                       )
-        exams_button.pack(fill="x", expand = True, side="left", pady = margin, padx = 3)
+        exams_button.pack(fill = "x", expand = True, side="left", padx=3)
 
     #FUNCTIONS
 
     def _assistance_button(self):
-        result = messagebox.askyesno(title="Assistance", message="Are you sure you want to update today's assistance?")
-        if result:
-            for s in self.students_list:
-                s.deselect()
+        students_assistance_dictionary = {}
+        if self.students_list:
+            level = self.class_info_dict["level"]
+            schedule = self.class_info_dict["schedule"]
+            result = messagebox.askyesno(title="Assistance",
+                                         message=f"Would you like to upload student's assistance for class {level} at {datetime.date.today()}?",)
+            if result:
+                for student in self.students_list:
+                    students_assistance_dictionary[student.id] = student.value.get()
+                try:
+                    database.upload_students_assistance(students_assistance_dictionary)
+                except Exception:
+                    messagebox.showerror(title="Assistance", message=f"Assistance couldn't be uploaded for class {level} at {datetime.date.today()}")
+        else:messagebox.showerror(title="Assistance", message="Please select a classroom first")
 
     def _homework_button(self):
-        res = messagebox.askokcancel(title="Send Homework", message = "Would you like to send homework for today?")
+        if self.class_info_dict :
+            level = self.class_info_dict["level"]
+            schedule = self.class_info_dict["schedule"]
+            if self.entry.get("0.0","end").strip()=="Homework..." or self.entry.get("0.0","end").strip()=="":
+                messagebox.showerror(title="Homework",message="Please, enter something before submiting homework")
+            else:
+                print(self.entry.get("0.0","end"))
+                result = messagebox.askyesno(title="Homework",
+                                             message=f"Would you like to send homework for class {level} at {datetime.date.today()}?")
+                if result:
+                    try:
+                        database.upload_homework(class_id=self.class_info_dict["id"],text=self.entry.get("0.0","end"))
+                    except Exception:
+                        messagebox.showerror(title="Homework", message=f"Homework couldn't be uploaded for class {level} at {datetime.date.today()}")
+        else:messagebox.showerror(title="Homework", message="Please select a classroom first")
+
+    def clear_homework(self):
+        self.entry.delete("0.0","end")
+        self.entry["fg"] = light_white_color
+        self.entry.insert("0.0", "Homework...")
+
+    def place_students(self):
+        self.students_list = []
+        if self.rendered_canvas:
+            self.assistance_frame.destroy()
+            self.assistance_frame = tk.LabelFrame(self,
+                                                  text="Assitance",
+                                                  font=label_frame_font(self),
+                                                  fg=white_color,
+                                                  bg=dark_color,
+                                                  borderwidth=frame_width,
+                                                  height=300,
+                                                  width=1000 - (300 + margin * 3)
+                                                  )
+            self.assistance_frame.pack(fill="both", padx = margin)
+
+        self.canvas = tk.Canvas(self.assistance_frame, background=dark_color, highlightthickness=0)
+        self.canvas.pack(fill = "both", expand = True, side = "left")
+
+        self.scrollbar = tk.Scrollbar(self.assistance_frame, orient = "vertical",command = self.canvas.yview)
+        self.scrollbar.pack(fill = "y", side = "right")
+
+        self.canvas.configure(yscrollcommand = self.scrollbar.set)
+        self.canvas.bind("<Configure>", lambda event: self.canvas.configure(scrollregion = self.canvas.bbox("all")))
+
+        students_frame = tk.Frame(self.canvas, background = dark_color)
+        self.canvas.create_window((0,0), anchor = "nw", window = students_frame)
+
+        for s in database.students:
+            id = s["id"]
+            surname = s["surname"]
+            name = s["name"]
+            student_name = f"{surname} {name}"
+            value = s["value"]
+            c = Student_Checkbox(students_frame, student_name=student_name, id = id, initial_value = value)
+            c.colocar()
+            self.students_list.append(c)
+        self.rendered_canvas = True

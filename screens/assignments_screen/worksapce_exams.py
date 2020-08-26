@@ -244,6 +244,7 @@ class Workspace_Exams(tk.Frame):
         self.speaking_entry.clear()
         self.students_var = tk.IntVar()
         self.option_menu_var.set("- First Exam -")
+        self.students_list=[]
 
     def _log_out(self):
         result = messagebox.askokcancel(title="Log Out", message="Would you like to log out?")

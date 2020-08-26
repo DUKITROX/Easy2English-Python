@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 from styles import *
 
 class Class_Button(tk.Frame):
@@ -24,11 +23,11 @@ class Class_Button(tk.Frame):
         schedule_tag.bind("<ButtonRelease-1>", lambda event : self._onRelease())
 
     def _onPressed(self):
-        self.configure(relief = "sunken")
-        self.controller.get_students_info(id = self.id, level = self.level, schedule = self.schedule)
-
+        self["relief"] = "sunken"
     def _onRelease(self):
-        self.configure(relief = "raised")
+        self["relief"] = "raised"
+        self.controller.get_students_info(id=self.id, level=self.level, schedule=self.schedule)
+
 
     def colocar(self):
         self.pack(fill = "both", pady = 2, padx = 7)

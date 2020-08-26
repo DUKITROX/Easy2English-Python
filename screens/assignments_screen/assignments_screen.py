@@ -8,7 +8,6 @@ from styles import *
 class Assignments_Screen(tk.Frame):
     def __init__(self, master):
         super().__init__(master, bg = dark_color, width = 1000, height = 500)
-
         self.clases = tk.LabelFrame(self,
                                     width = 300,
                                     height = 500-margin,
@@ -45,7 +44,6 @@ class Assignments_Screen(tk.Frame):
                              )
             b.colocar()
 
-
     def get_students_info(self, id, level, schedule):
         database.fetch_students_info(id = id)
         class_info_dict = {
@@ -57,4 +55,18 @@ class Assignments_Screen(tk.Frame):
         self.workspaces["Workspace_Assistance"].clear_homework()
         self.focus_set()
         self.workspaces["Workspace_Assistance"].place_students()
+
         self.workspaces["Workspace_Exams"].place_students()
+
+    def log_out(self):
+        self.clases.destroy()
+        self.clases = tk.LabelFrame(self,
+                                    width=300,
+                                    height=500 - margin,
+                                    bg=dark_color,
+                                    text="Classes",
+                                    borderwidth=frame_width,
+                                    font=label_frame_font(self),
+                                    fg=white_color)
+        self.clases.place(x=margin, width=300, height=500 - margin)
+        self.workspaces["Workspace_Assistance"].log_out()

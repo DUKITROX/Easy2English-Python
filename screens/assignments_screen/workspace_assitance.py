@@ -11,6 +11,7 @@ class Workspace_Assistance(tk.Frame):
         super().__init__(master, bg = dark_color)
 
         self.master = master
+        self.controller = controller
         self.class_info_dict = None
         self.rendered_canvas = False
         self.students_list = []
@@ -75,7 +76,7 @@ class Workspace_Assistance(tk.Frame):
                       bg = light_color,
                       activebackground = light_color,
                       borderwidth = button_width,
-                      command = lambda : controller.show_workspace("Workspace_Exams")
+                      command = lambda : self._exams_button()
                       )
         exams_button.pack(fill = "x", expand = True, side="left", padx=3)
 
@@ -103,8 +104,8 @@ class Workspace_Assistance(tk.Frame):
             schedule = self.class_info_dict["schedule"]
             if self.entry.get("0.0","end").strip()=="Homework..." or self.entry.get("0.0","end").strip()=="":
                 messagebox.showerror(title="Homework",message="Please, enter something before submiting homework")
+                self.focus_set()
             else:
-                print(self.entry.get("0.0","end"))
                 result = messagebox.askyesno(title="Homework",
                                              message=f"Would you like to send homework for class {level} at {datetime.date.today()}?")
                 if result:
@@ -116,6 +117,27 @@ class Workspace_Assistance(tk.Frame):
 
     def clear_homework(self):
         self.entry.delete("0.0","end")
+        self.entry["fg"] = light_white_color
+        self.entry.insert("0.0", "Homework...")
+
+    def _exams_button(self):
+        self.controller.show_workspace("Workspace_Exams")
+
+    def log_out(self):
+        self.students_list = []
+        self.class_info_dict = None
+        self.assistance_frame.destroy()
+        self.assistance_frame = tk.LabelFrame(self,
+                                              text="Assitance",
+                                              font=label_frame_font(self),
+                                              fg=white_color,
+                                              bg=dark_color,
+                                              borderwidth=frame_width,
+                                              height=300,
+                                              width=1000 - (300 + margin * 3)
+                                              )
+        self.assistance_frame.pack(fill="both", padx=margin)
+        self.entry.delete("0.0", "end")
         self.entry["fg"] = light_white_color
         self.entry.insert("0.0", "Homework...")
 

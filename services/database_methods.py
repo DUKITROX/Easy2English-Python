@@ -42,7 +42,6 @@ class Database_Methods:
                 print("Couldn't fetch classes for firestore")
         return self.classes
 
-    #todo Implement Assistance: check if in sutents/assistance there is a document with today's timestamp, and if there is, fetch it
     def fetch_students_info(self, id):
         #List of  dictionaries, each dictionary represents a student and containes 3 fields: ID, name, surname
         self.students = []
@@ -70,7 +69,7 @@ class Database_Methods:
                 "surname":student_dict["surname"],
                 "name":student_dict["name"],
                 "id":s,
-                "value":value
+                "value":value,
             }
             #Adding the student locally
             self.students.append(student)
@@ -96,6 +95,26 @@ class Database_Methods:
         })
         messagebox.showinfo(title="Homework", message=f"Homework for {self.today} was succesfully uploaded")
 
+    def fetch_student_exam(self, student_id, exam_number):
+        student_exam_ref = db.collection("students").document(student_id).collection("exams").document(exam_number)
+        student_exam_doc = student_exam_ref.get()
+        student_exam_dict = student_exam_doc.to_dict()
+        first_exam = {
+           "reading":None,
+           "writing":None,
+           "listening":None,
+           "speaking":None
+        }
+        if student_exam_dict:
+           first_exam["reading"] = student_exam_dict["reading"],
+           first_exam["writing"] = student_exam_dict["writing"],
+           first_exam["listening"] = student_exam_dict["listening"],
+           first_exam["speaking"] = student_exam_dict["speaking"]
+        return student_exam_dict
+
+    def upload_students_exam(self, student_id, exam_number, marks_dictionary):
+        student_exam_ref = db.collection("students").document(student_id).collection("exams").document(exam_number)
+        student_exam_ref.set(marks_dictionary)
 
     def get_classes(self):
         return self.classes

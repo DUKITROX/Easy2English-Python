@@ -1,9 +1,10 @@
 import tkinter as tk
+from tkinter import messagebox
 from PIL import ImageTk, Image
 from styles import *
 from widgets.entry import Entry
 from widgets.authentication_toasts import Authentication_Toasts
-from services.database_methods import database
+from services.database_methods import database, test_connection
 
 class Authentication_Screen(tk.Frame):
     def __init__(self, master):
@@ -39,16 +40,18 @@ class Authentication_Screen(tk.Frame):
         login_button.place(relx = 0.5, rely = 0.65, anchor = "center", width = 300)
 
     def _log_in(self, id, password):
-        if id == "":
-            t = Authentication_Toasts(self, error="ID does not exist")
-        else:
-            result = database.log_in(id, password)
-            if result == True:
-                database.fetch_clases()
-                self.password.clear()
-                self.id.clear()
-                self.focus_set()
-                self.master.screens["Assignments_Screen"].place_classes()
-                self.master.show_screen("Assignments_Screen")
+        if test_connection():
+            if id == "":
+                t = Authentication_Toasts(self, error="ID does not exist")
             else:
-                t = Authentication_Toasts(self, error=result).colocar()
+                result = database.log_in(id, password)
+                if result == True:
+                    database.fetch_clases()
+                    self.password.clear()
+                    self.id.clear()
+                    self.focus_set()
+                    self.master.screens["Assignments_Screen"].place_classes()
+                    self.master.show_screen("Assignments_Screen")
+                else:
+                    t = Authentication_Toasts(self, error=result).colocar()
+        else:messagebox.showerror(title="Easy2English", message="Please connect to the internet")

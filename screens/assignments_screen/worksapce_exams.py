@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import decimal
 from styles import *
 from widgets.entry import Entry
 from widgets.student_radiobutton import  Student_RadioButton
@@ -118,24 +119,38 @@ class Workspace_Exams(tk.Frame):
     def _update_exam_number(self, *args):
         if self.option_menu_var.get() == "- First Exam -" :
             self.exam_number = "first_exam"
+            self.focus_set()
             self.get_student_mark()
         else:
             self.exam_number = "second_exam"
+            self.focus_set()
             self.get_student_mark()
 
     def get_student_mark(self):
+        self.focus_set()
         if self.students_var.get():
             exam_marks = database.fetch_student_exam(student_id=str(self.students_var.get()), exam_number=self.exam_number)
             if exam_marks:
                 if not exam_marks["reading"] == self.null_mark_message:
                     self.reading_and_use_of_english_entry.add_exam_marks(exam_marks["reading"]),
+                else: self.reading_and_use_of_english_entry.clear()
+                if not exam_marks["writing"] == self.null_mark_message:
                     self.writing_entry.add_exam_marks(exam_marks["writing"])
+                else:self.writing_entry.clear()
+                if not exam_marks["listening"] == self.null_mark_message:
                     self.listening_entry.add_exam_marks(exam_marks["listening"])
+                else: self.listening_entry.clear()
+                if not exam_marks["speaking"] == self.null_mark_message:
                     self.speaking_entry.add_exam_marks(exam_marks["speaking"])
+                else: self.speaking_entry.clear()
+            else:
+                self.reading_and_use_of_english_entry.clear()
+                self.writing_entry.clear()
+                self.listening_entry.clear()
+                self.speaking_entry.clear()
 
     def _exams_button(self):
         exam_number = self.exam_number.replace("_"," ")
-        null_values_score = 0
         reading_mark, writing_mark, listening_mark, speaking_mark = self.null_mark_message, self.null_mark_message, self.null_mark_message, self.null_mark_message
         self.correct_data = False
         if self.students_list:
@@ -144,28 +159,32 @@ class Workspace_Exams(tk.Frame):
                 for mark in (self.reading_and_use_of_english_entry, self.writing_entry, self.listening_entry, self.speaking_entry):
                     if mark.on_placeholder == False and mark.get() != "":
                         try:
-                            if mark.placeholder == "Reading and use of English" and int(mark.get().strip())<=10:
-                                reading_mark = int(mark.get().strip())
-                            elif mark.place == "Writing" and int(mark.get().strip())<=10:
-                                writing_mark = int(mark.get().strip())
-                            elif mark.placeholder == "Listening" and int(mark.get().strip())<=10:
-                                listening_mark = int(mark.get().strip())
-                            elif mark.placeholder == "Speaking" and int(mark.get().strip())<=10:
-                                speaking_mark = int(mark.get().strip())
+                            if mark.placeholder == "Reading and use of English" and float(mark.get().strip())<=10:
+                                reading_mark = float(mark.get().strip())
+                            elif mark.placeholder == "Writing" and float(mark.get().strip())<=10:
+                                writing_mark = float(mark.get().strip())
+                            elif mark.placeholder == "Listening" and float(mark.get().strip())<=10:
+                                listening_mark = float(mark.get().strip())
+                            elif mark.placeholder == "Speaking" and float(mark.get().strip())<=10:
+                                speaking_mark = float(mark.get().strip())
+
+                            if not float(mark.get().strip())<=10:
+                                self.correct_data = False
+                                messagebox.showerror(title="Exams", message = "Marks cannot contain numbers over 10")
+                                break
                             self.correct_data = True
                         except Exception:
-                            messagebox.showerror(title="Exams", message='Marks must be numbers under 10 and cannot contain commas or letters')
-                    else:
-                        null_values_score += 1
-                        if null_values_score == 4:
-                            messagebox.showerror(title="Exams", message="Please enter some data before submiting the marks")
-                            null_values_score = 0
+                            messagebox.showerror(title="Exams", message='Marks cannot contain commas or letters')
+                            self.correct_data = False
+                            break
+                    else:self.correct_data = True
                 if self.correct_data == True:
                     for student in self.students_list:
                         if student.id == self.students_var.get():
                             index = self.students_list.index(student)
                             result = messagebox.askyesno(title="Exams",
                                                          message=f"Would you like to update the mark of {self.students_list[index].student_name} for his {exam_number}")
+                            self.focus_set()
                             if result:
                                 marks_dictionary = {
                                     "reading": reading_mark,
@@ -218,10 +237,31 @@ class Workspace_Exams(tk.Frame):
             self.students_list.append(r)
         self.rendered_canvas = True
 
+    def clear_all_entries(self):
+        self.reading_and_use_of_english_entry.clear()
+        self.writing_entry.clear()
+        self.listening_entry.clear()
+        self.speaking_entry.clear()
+        self.students_var = tk.IntVar()
+        self.option_menu_var.set("- First Exam -")
+
     def _log_out(self):
         result = messagebox.askokcancel(title="Log Out", message="Would you like to log out?")
         if result:
             self.controller.show_workspace("Workspace_Assistance")
             self.controller.master.show_screen("Authentication_Screen")
-            self.option_menu_var.set("- First Exam -")
+
+            self.clear_all_entries()
+            self.students_frame.destroy()
+            self.students_frame = tk.LabelFrame(self,
+                                                text="Students",
+                                                font=label_frame_font(self),
+                                                fg=white_color,
+                                                bg=dark_color,
+                                                borderwidth=frame_width,
+                                                height=300,
+                                                width=1000 - (300 + margin * 3)
+                                                )
+            self.students_frame.pack(fill="both", padx=margin)
+
             self.controller.log_out()

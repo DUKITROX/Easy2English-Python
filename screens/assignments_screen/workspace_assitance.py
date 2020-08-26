@@ -108,12 +108,17 @@ class Workspace_Assistance(tk.Frame):
             else:
                 result = messagebox.askyesno(title="Homework",
                                              message=f"Would you like to send homework for class {level} at {datetime.date.today()}?")
+                self.focus_set()
                 if result:
                     try:
                         database.upload_homework(class_id=self.class_info_dict["id"],text=self.entry.get("0.0","end"))
+                        messagebox.showinfo(title="Homework",
+                                            message=f"Homework for class {level} was succesfully uploaded at {datetime.date.today()}")
                     except Exception:
                         messagebox.showerror(title="Homework", message=f"Homework couldn't be uploaded for class {level} at {datetime.date.today()}")
-        else:messagebox.showerror(title="Homework", message="Please select a classroom first")
+        else:
+            messagebox.showerror(title="Homework", message="Please select a classroom first")
+            self.focus_set()
 
     def clear_homework(self):
         self.entry.delete("0.0","end")
@@ -122,24 +127,6 @@ class Workspace_Assistance(tk.Frame):
 
     def _exams_button(self):
         self.controller.show_workspace("Workspace_Exams")
-
-    def log_out(self):
-        self.students_list = []
-        self.class_info_dict = None
-        self.assistance_frame.destroy()
-        self.assistance_frame = tk.LabelFrame(self,
-                                              text="Assitance",
-                                              font=label_frame_font(self),
-                                              fg=white_color,
-                                              bg=dark_color,
-                                              borderwidth=frame_width,
-                                              height=300,
-                                              width=1000 - (300 + margin * 3)
-                                              )
-        self.assistance_frame.pack(fill="both", padx=margin)
-        self.entry.delete("0.0", "end")
-        self.entry["fg"] = light_white_color
-        self.entry.insert("0.0", "Homework...")
 
     def place_students(self):
         self.students_list = []
@@ -178,3 +165,21 @@ class Workspace_Assistance(tk.Frame):
             c.colocar()
             self.students_list.append(c)
         self.rendered_canvas = True
+
+    def log_out(self):
+        self.students_list = []
+        self.class_info_dict = None
+        self.assistance_frame.destroy()
+        self.assistance_frame = tk.LabelFrame(self,
+                                              text="Assitance",
+                                              font=label_frame_font(self),
+                                              fg=white_color,
+                                              bg=dark_color,
+                                              borderwidth=frame_width,
+                                              height=300,
+                                              width=1000 - (300 + margin * 3)
+                                              )
+        self.assistance_frame.pack(fill="both", padx=margin)
+        self.entry.delete("0.0", "end")
+        self.entry["fg"] = light_white_color
+        self.entry.insert("0.0", "Homework...")

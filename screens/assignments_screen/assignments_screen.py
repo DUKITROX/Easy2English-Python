@@ -56,6 +56,7 @@ class Assignments_Screen(tk.Frame):
         self.focus_set()
         self.workspaces["Workspace_Assistance"].place_students()
 
+        self.workspaces["Workspace_Exams"].clear_all_entries()
         self.workspaces["Workspace_Exams"].place_students()
 
     def log_out(self):

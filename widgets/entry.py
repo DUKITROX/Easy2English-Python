@@ -39,7 +39,10 @@ class Entry(tk.Entry):
     def clear(self):
         self.delete("0","end")
         self._add_placeholder(event = "")
+
     def add_exam_marks(self, data):
         self.delete("0", "end")
+        self["fg"] = white_color
+        self.on_placeholder = False
         self.insert("0", data)
     #todo implement placeholder with "command" instead of "FocusIn" or "FocusOut"

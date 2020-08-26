@@ -88,12 +88,12 @@ class Database_Methods:
         messagebox.showinfo(title="Assistance", message=f"Assistance succesfuly uploaded for {datetime.date.today()}")
 
     def upload_homework(self, class_id, text):
-        homework_ref = db.collection("classes").document(class_id).collection("homework").document()
+
+        homework_ref = db.collection("classes").document(class_id).collection("homework").document(str(datetime.datetime.now()))
         homework_ref.set({
             "text":text,
-            "timestamp":self.today
+            "timestamp":str(datetime.datetime.now())
         })
-        messagebox.showinfo(title="Homework", message=f"Homework for {self.today} was succesfully uploaded")
 
     def fetch_student_exam(self, student_id, exam_number):
         student_exam_ref = db.collection("students").document(student_id).collection("exams").document(exam_number)

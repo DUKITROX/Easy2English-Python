@@ -4,7 +4,7 @@ import socket
 import datetime
 from tkinter import messagebox
 
-cred = credentials.Certificate("c:/Users/pilot/OneDrive/Escritorio/Easy2English Python/easy2english-df1eb-firebase-adminsdk-4wbw8-b5435a814f.json")
+cred = credentials.Certificate("easy2english-df1eb-firebase-adminsdk-4wbw8-b5435a814f.json")
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -108,7 +108,10 @@ class Database_Methods:
                 "text":text,
                 "timestamp":str(datetime.datetime.now())
             })
-        else: messagebox.showerror(title="Easy2English", message="Please connect to the internet")
+            return True
+        else:
+            messagebox.showerror(title="Easy2English", message="Please connect to the internet")
+            return False
 
     def fetch_student_exam(self, student_id, exam_number):
         if test_connection():

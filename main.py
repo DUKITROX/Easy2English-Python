@@ -25,5 +25,6 @@ class Easy2English(tk.Tk):
         frame = self.screens[screen]
         frame.tkraise()
 
+print("caca")
 app = Easy2English()
 app.mainloop()

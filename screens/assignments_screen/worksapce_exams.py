@@ -225,17 +225,19 @@ class Workspace_Exams(tk.Frame):
 
         students_frame = tk.Frame(self.canvas, background=dark_color)
         self.canvas.create_window((0, 0), anchor="nw", window=students_frame)
-
-        for s in database.students:
-            id = s["id"]
-            surname = s["surname"]
-            name = s["name"]
-            student_name = f"{surname} {name}"
-            r = Student_RadioButton(students_frame, controller=self, student_name=student_name,
-                                    variable=self.students_var, id=int(id))
-            r.colocar()
-            self.students_list.append(r)
-        self.rendered_canvas = True
+        try:
+            for s in database.students:
+                id = s["id"]
+                surname = s["surname"]
+                name = s["name"]
+                student_name = f"{surname} {name}"
+                r = Student_RadioButton(students_frame, controller=self, student_name=student_name,
+                                        variable=self.students_var, id=int(id))
+                r.colocar()
+                self.students_list.append(r)
+            self.rendered_canvas = True
+        except Exception:
+            pass
 
     def clear_all_entries(self):
         self.reading_and_use_of_english_entry.clear()

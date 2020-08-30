@@ -111,8 +111,8 @@ class Workspace_Assistance(tk.Frame):
                 self.focus_set()
                 if result:
                     try:
-                        database.upload_homework(class_id=self.class_info_dict["id"],text=self.entry.get("0.0","end"))
-                        messagebox.showinfo(title="Homework",
+                        if database.upload_homework(class_id=self.class_info_dict["id"],text=self.entry.get("0.0","end")):
+                            messagebox.showinfo(title="Homework",
                                             message=f"Homework for class {level} was succesfully uploaded at {datetime.date.today()}")
                     except Exception:
                         messagebox.showerror(title="Homework", message=f"Homework couldn't be uploaded for class {level} at {datetime.date.today()}")
@@ -155,16 +155,19 @@ class Workspace_Assistance(tk.Frame):
         students_frame = tk.Frame(self.canvas, background = dark_color)
         self.canvas.create_window((0,0), anchor = "nw", window = students_frame)
 
-        for s in database.students:
-            id = s["id"]
-            surname = s["surname"]
-            name = s["name"]
-            student_name = f"{surname} {name}"
-            value = s["value"]
-            c = Student_Checkbox(students_frame, student_name=student_name, id = id, initial_value = value)
-            c.colocar()
-            self.students_list.append(c)
-        self.rendered_canvas = True
+        try:
+            for s in database.students:
+                id = s["id"]
+                surname = s["surname"]
+                name = s["name"]
+                student_name = f"{surname} {name}"
+                value = s["value"]
+                c = Student_Checkbox(students_frame, student_name=student_name, id = id, initial_value = value)
+                c.colocar()
+                self.students_list.append(c)
+            self.rendered_canvas = True
+        except Exception:
+            pass
 
     def log_out(self):
         self.students_list = []

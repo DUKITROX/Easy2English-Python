@@ -12,7 +12,7 @@ class Authentication_Screen(tk.Frame):
 
         self.master = master
 
-        logo_image = ImageTk.PhotoImage(Image.open("c:/Users/pilot/OneDrive/Escritorio/Easy2English Python/assets/logo_photo.png"))
+        logo_image = ImageTk.PhotoImage(Image.open("assets/logo_photo.png"))
         logo = tk.Label(self)
         logo.image = logo_image
         logo.configure(image = logo_image, bg = dark_color)
